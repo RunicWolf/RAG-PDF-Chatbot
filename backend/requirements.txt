@@ -2,3 +2,11 @@
 uvicorn[standard]
 pydantic-settings
 python-dotenv
+
+# RAG stack
+langchain>=0.2
+langchain-openai
+langchain-community
+faiss-cpu
+pypdf
+httpx
