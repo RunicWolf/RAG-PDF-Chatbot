@@ -57,6 +57,8 @@ python -m uvicorn app.main:app --reload --port 8000
 
 ## Frontend (from frontend/)
 npm run dev
+
+```bash
 Visit: http://localhost:5173
 
 #API
