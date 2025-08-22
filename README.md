@@ -58,26 +58,27 @@ python -m uvicorn app.main:app --reload --port 8000
 ## Frontend (from frontend/)
 npm run dev
 
-```bash
+```
 Visit: http://localhost:5173
 
-#API
+## API
 
-##POST /api/ingest
+### POST /api/ingest
 
-###Multipart form upload:
-
+#### Multipart form upload:
+```bash
 curl -F "files=@sample.pdf" http://127.0.0.1:8000/api/ingest
+```
 
-##POST /api/chat
+### POST /api/chat
 
-###Ask questions:
-
+#### Ask questions:
+```bash
 curl -H "Content-Type: application/json" ^
   -d '{"question":"What does the sample PDF say?","k":4}' ^
   http://127.0.0.1:8000/api/chat
-
-#Troubleshooting
+```
+## Troubleshooting
 
 422 / missing body → PowerShell quoting (use Invoke-RestMethod or JSON file).
 
@@ -85,7 +86,7 @@ CORS errors → Ensure .env CORS_ORIGINS includes frontend origin.
 
 Empty answers → Delete backend/storage/faiss/index/ and re-ingest.
 
-#Roadmap
+## Roadmap
 
 Pinecone cloud vector DB
 
