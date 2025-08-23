@@ -3,16 +3,14 @@ from typing import List
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
+from app.vectorstores.store import get_store_wrapper, get_embeddings
 from app.core.config import settings
-from app.vectorstores.faiss_store import FAISSWrapper, get_embeddings
 
-# Data dirs
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 
-# Splitter defaults
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000,
     chunk_overlap=200,
@@ -27,19 +25,24 @@ def _load_pdfs(paths: List[str]):
     return docs
 
 def ingest_pdf_paths(paths: List[str]) -> int:
-    # Load and split
     docs = _load_pdfs(paths)
     chunks = splitter.split_documents(docs)
 
-    embeddings = get_embeddings(api_key=settings.OPENAI_API_KEY or "", model=settings.EMBEDDING_MODEL)
-    wrapper = FAISSWrapper(embeddings)
+    embeddings = get_embeddings()
+    wrapper = get_store_wrapper(embeddings)
 
-    if wrapper.exists():
-        store = wrapper.load()
-        store.add_documents(chunks)
+    # For FAISS we need to either load or create; for Pinecone we just add
+    if (settings.VECTOR_DB or "").lower() == "faiss":
+        from app.vectorstores.faiss_store import FAISSWrapper
+        faiss = FAISSWrapper(embeddings)
+        if faiss.exists():
+            store = faiss.load()
+            store.add_documents(chunks)
+            faiss.save(store)
+        else:
+            store = FAISS.from_documents(chunks, embeddings)
+            faiss.save(store)
     else:
-        # First time: build index directly from documents (no dummy vectors)
-        store = FAISS.from_documents(chunks, embeddings)
+        wrapper.add_documents(chunks)
 
-    wrapper.save(store)
     return len(chunks)

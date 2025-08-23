@@ -1,0 +1,14 @@
+### Ingest (run once after restart)
+POST http://127.0.0.1:8000/api/ingest
+
+### Chat – short summary
+POST http://127.0.0.1:8000/api/chat
+Content-Type: application/json
+
+{ "question": "Give me a short summary of the document.", "k": 4, "return_debug": true }
+
+### Chat – exact quote
+POST http://127.0.0.1:8000/api/chat
+Content-Type: application/json
+
+{ "question": "What does the sample PDF say?", "k": 4, "return_debug": true }

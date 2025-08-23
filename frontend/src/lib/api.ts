@@ -1,5 +1,8 @@
 ﻿const API_BASE = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000";
 
+export type ChatSource = { page: number; page_content: string; metadata: Record<string, any> };
+export type ChatResponse = { answer: string; sources: ChatSource[]; debug_context?: string };
+
 export async function uploadPdfs(files: File[]): Promise<{ added_documents: number; files: string[] }> {
   const fd = new FormData();
   files.forEach((f) => fd.append("files", f));
@@ -7,9 +10,6 @@ export async function uploadPdfs(files: File[]): Promise<{ added_documents: numb
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
-
-export type ChatSource = { page_content: string; metadata: Record<string, any> };
-export type ChatResponse = { answer: string; sources: ChatSource[]; debug_context?: string };
 
 export async function ask(question: string, k = 4, return_debug = false): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/api/chat`, {
